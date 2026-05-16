@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>سوبرماركت POS</title>
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@7.2.96/css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Cairo', sans-serif; 
+            background: #f0f2f5; 
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* شريط علوي */
+        .app-bar {
+            background: linear-gradient(135deg, #1565C0 0%, #0D47A1 100%);
+            color: white;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        .app-bar h1 { font-size: 18px; font-weight: 700; }
+        .app-bar .menu-btn {
+            background: none; border: none; color: white;
+            font-size: 24px; cursor: pointer; padding: 4px;
+        }
+
+        /* القائمة الجانبية */
+        .sidebar {
+            position: fixed;
+            top: 0; right: -280px;
+            width: 280px; height: 100vh;
+            background: white;
+            z-index: 1001;
+            transition: right 0.3s ease;
+            box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+            overflow-y: auto;
+        }
+        .sidebar.open { right: 0; }
+        .sidebar-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            display: none;
+        }
+        .sidebar-overlay.show { display: block; }
+        .sidebar-header {
+            background: linear-gradient(135deg, #1565C0 0%, #0D47A1 100%);
+            color: white; padding: 30px 20px;
+            text-align: center;
+        }
+        .sidebar-header .icon { font-size: 48px; margin-bottom: 10px; }
+        .sidebar-header h2 { font-size: 20px; }
+        .sidebar-header p { font-size: 12px; opacity: 0.8; margin-top: 5px; }
+        .nav-item {
+            display: flex; align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .nav-item:hover, .nav-item.active {
+            background: #E3F2FD;
+            border-right: 3px solid #1565C0;
+        }
+        .nav-item i { font-size: 22px; margin-left: 12px; color: #1565C0; }
+        .nav-item span { font-size: 15px; color: #333; }
+        .nav-item.active span { font-weight: 700; color: #1565C0; }
+
+        /* المحتوى */
+        .content {
+            margin-top: 56px;
+            padding: 16px;
+            min-height: calc(100vh - 56px);
+        }
+
+        /* البطاقات */
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .card-title { font-size: 16px; font-weight: 700; color: #333; }
+        .card-icon { font-size: 28px; }
+        .card-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1565C0;
+        }
+        .card-label { font-size: 12px; color: #888; margin-top: 4px; }
+
+        /* شبكة الإحصائيات */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .stat-card .icon { font-size: 32px; margin-bottom: 8px; }
+        .stat-card .value {
+            font-size: 20px;
+            font-weight: 700;
+        }
+        .stat-card .label { font-size: 12px; color: #888; margin-top: 4px; }
+
+        /* الأزرار */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: none;
+            font-family: 'Cairo', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            gap: 8px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #1565C0 0%, #0D47A1 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(21,101,192,0.3);
+        }
+        .btn-success {
+            background: linear-gradient(135deg, #2E7D32 0%, #1B5E20 100%);
+            color: white;
+        }
+        .btn-danger {
+            background: linear-gradient(135deg, #C62828 0%, #B71C1C 100%);
+            color: white;
+        }
+        .btn-block { width: 100%; }
+        .btn-lg { padding: 16px; font-size: 16px; }
+
+        /* حقول الإدخال */
+        .input-group {
+            margin-bottom: 16px;
+        }
+        .input-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 6px;
+        }
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-family: 'Cairo', sans-serif;
+            font-size: 14px;
+            transition: border-color 0.2s;
+            background: white;
+        }
+        .input-group input:focus, .input-group select:focus {
+            outline: none;
+            border-color: #1565C0;
+        }
+
+        /* الجداول */
+        .table-container {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        th {
+            background: #1565C0;
+            color: white;
+            padding: 12px;
+            text-align: right;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #f0f0f0;
+            white-space: nowrap;
+        }
+        tr:hover { background: #f8f9fa; }
+
+        /* الشارات */
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .badge-success { background: #E8F5E9; color: #2E7D32; }
+        .badge-warning { background: #FFF3E0; color: #F57C00; }
+        .badge-danger { background: #FFEBEE; color: #C62828; }
+        .badge-info { background: #E3F2FD; color: #1565C0; }
+
+        /* منتجات POS */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        .product-card {
+            background: white;
+            border-radius: 12px;
+            padding: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+        }
+        .product-card:active {
+            transform: scale(0.98);
+        }
+        .product-card .stock-badge {
+            position: absolute;
+            top: 8px; left: 8px;
+            width: 10px; height: 10px;
+            border-radius: 50%;
+        }
+        .product-card .name {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        .product-card .price {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1565C0;
+        }
+        .product-card .barcode {
+            font-size: 10px;
+            color: #999;
+            margin-top: 4px;
+        }
+
+        /* سلة المشتريات */
+        .cart-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        }
+        .cart-item .info { flex: 1; }
+        .cart-item .name { font-weight: 600; font-size: 14px; }
+        .cart-item .price { font-size: 12px; color: #888; }
+        .cart-item .qty-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .qty-btn {
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            border: none;
+            background: #E3F2FD;
+            color: #1565C0;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .cart-item .total {
+            font-weight: 700;
+            color: #1565C0;
+            margin-right: 12px;
+            min-width: 60px;
+            text-align: left;
+        }
+
+        /* ملخص الفاتورة */
+        .invoice-summary {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .summary-row:last-child {
+            border-bottom: none;
+            font-size: 18px;
+            font-weight: 700;
+            color: #1565C0;
+        }
+
+        /* تبويبات */
+        .tabs {
+            display: flex;
+            background: white;
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #888;
+        }
+        .tab.active {
+            background: #1565C0;
+            color: white;
+        }
+
+        /* صفحة تسجيل الدخول */
+        .login-page {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #1565C0 0%, #0D47A1 100%);
+            padding: 20px;
+        }
+        .login-card {
+            background: white;
+            border-radius: 20px;
+            padding: 32px 24px;
+            width: 100%;
+            max-width: 360px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .login-logo {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        .login-logo .icon { font-size: 64px; }
+        .login-logo h2 { color: #1565C0; margin-top: 8px; }
+        .login-logo p { color: #888; font-size: 13px; }
+
+        /* تأثيرات */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in { animation: fadeIn 0.3s ease; }
+
+        /* شريط البحث */
+        .search-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        .search-bar input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-family: 'Cairo', sans-serif;
+            font-size: 14px;
+        }
+        .search-bar input:focus {
+            outline: none;
+            border-color: #1565C0;
+        }
+
+        /* تصنيفات */
+        .chips {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+            -webkit-overflow-scrolling: touch;
+        }
+        .chip {
+            padding: 8px 16px;
+            border-radius: 20px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            font-size: 13px;
+            font-weight: 600;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .chip.active {
+            background: #1565C0;
+            border-color: #1565C0;
+            color: white;
+        }
+
+        /* رسوم بيانية بسيطة */
+        .chart-bar {
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            height: 150px;
+            padding: 16px 0;
+        }
+        .bar {
+            flex: 1;
+            background: linear-gradient(to top, #1565C0, #42A5F5);
+            border-radius: 4px 4px 0 0;
+            min-height: 20px;
+            position: relative;
+            transition: height 0.5s ease;
+        }
+        .bar-label {
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 10px;
+            color: #888;
+            white-space: nowrap;
+        }
+        .bar-value {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 11px;
+            font-weight: 600;
+            color: #1565C0;
+        }
+
+        /* PWA */
+        .install-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1565C0;
+            color: white;
+            padding: 14px 32px;
+            border-radius: 30px;
+            border: none;
+            font-family: 'Cairo', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            box-shadow: 0 4px 20px rgba(21,101,192,0.4);
+            cursor: pointer;
+            z-index: 999;
+            display: none;
+        }
+        .install-btn.show { display: block; }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            top: 70px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: #333;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            z-index: 10000;
+            transition: transform 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .toast.show { transform: translateX(-50%) translateY(0); }
+        .toast.success { background: #2E7D32; }
+        .toast.error { background: #C62828; }
+        .toast.warning { background: #F57C00; }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- يتم ملؤه بواسطة JavaScript -->
+    </div>
+    <div class="toast" id="toast"></div>
+    <button class="install-btn" id="installBtn" onclick="installPWA()">📲 تثبيت التطبيق</button>
+
+    <script src="app.js"></script>
+</body>
+</html>
