@@ -3,50 +3,41 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>سوبرماركت POS - نظام متكامل</title>
+    <title>نظام محاسبة كامل متكامل - احترافي</title>
     <link href="https://cdn.jsdelivr.net/npm/@mdi/font@7.2.96/css/materialdesignicons.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { height: 100%; }
         body { 
             font-family: 'Cairo', sans-serif; 
-            background: #f0f2f5; 
+            background: #f5f7fa; 
             overflow-x: hidden;
-            -webkit-tap-highlight-color: transparent;
         }
 
-        /* شريط علوي */
-        .app-bar {
-            background: linear-gradient(135deg, #1565C0 0%, #0D47A1 100%);
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 12px 16px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            padding: 16px;
             position: fixed;
             top: 0; left: 0; right: 0;
             z-index: 1000;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-        }
-        .app-bar h1 { font-size: 18px; font-weight: 700; }
-        .app-bar .menu-btn {
-            background: none; border: none; color: white;
-            font-size: 24px; cursor: pointer; padding: 4px;
-        }
-        .app-bar .user-info {
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 8px;
-            font-size: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
         }
+        .header h1 { font-size: 20px; font-weight: 700; }
+        .header-actions { display: flex; gap: 8px; align-items: center; }
+        .btn-back { background: rgba(255,255,255,0.2); border: none; color: white; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 14px; }
+        .btn-back:hover { background: rgba(255,255,255,0.3); }
 
-        /* القائمة الجانبية */
         .sidebar {
             position: fixed;
-            top: 0; right: -320px;
-            width: 320px; height: 100vh;
+            top: 56px; right: -300px;
+            width: 300px; height: calc(100vh - 56px);
             background: white;
-            z-index: 1001;
+            z-index: 999;
             transition: right 0.3s ease;
             box-shadow: -2px 0 10px rgba(0,0,0,0.1);
             overflow-y: auto;
@@ -55,401 +46,197 @@
         .sidebar-overlay {
             position: fixed; inset: 0;
             background: rgba(0,0,0,0.5);
-            z-index: 1000;
+            z-index: 998;
             display: none;
         }
         .sidebar-overlay.show { display: block; }
-        .sidebar-header {
-            background: linear-gradient(135deg, #1565C0 0%, #0D47A1 100%);
-            color: white; padding: 30px 20px;
-            text-align: center;
+
+        .nav-menu {
+            display: flex;
+            flex-direction: column;
         }
-        .sidebar-header .icon { font-size: 48px; margin-bottom: 10px; }
-        .sidebar-header h2 { font-size: 20px; }
-        .sidebar-header p { font-size: 12px; opacity: 0.8; margin-top: 5px; }
-        .nav-item {
-            display: flex; align-items: center;
-            padding: 15px 20px;
-            border-bottom: 1px solid #f0f0f0;
-            cursor: pointer;
-            transition: background 0.2s;
+        .nav-section {
+            border-bottom: 1px solid #eee;
+            padding: 8px 0;
         }
-        .nav-item:hover, .nav-item.active {
-            background: #E3F2FD;
-            border-right: 3px solid #1565C0;
-        }
-        .nav-item i { font-size: 22px; margin-left: 12px; color: #1565C0; }
-        .nav-item span { font-size: 15px; color: #333; }
-        .nav-item.active span { font-weight: 700; color: #1565C0; }
-        .nav-section { padding-top: 16px; border-top: 2px solid #f0f0f0; margin-top: 16px; }
         .nav-section-title {
-            padding: 12px 20px;
-            font-size: 12px;
+            padding: 12px 16px;
+            font-size: 11px;
             font-weight: 700;
-            color: #888;
+            color: #999;
             text-transform: uppercase;
+            letter-spacing: 1px;
         }
+        .nav-item {
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-right: 3px solid transparent;
+        }
+        .nav-item:hover { background: #f5f7fa; }
+        .nav-item.active {
+            background: #e8eaf6;
+            border-right-color: #667eea;
+            color: #667eea;
+            font-weight: 600;
+        }
+        .nav-item-icon { font-size: 20px; }
+        .nav-item-text { font-size: 14px; }
 
-        /* المحتوى */
-        .content {
+        .main-content {
             margin-top: 56px;
-            padding: 16px;
             min-height: calc(100vh - 56px);
-            padding-bottom: 80px;
+            padding: 20px;
+            background: #f5f7fa;
         }
 
-        /* البطاقات */
+        .breadcrumb {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #666;
+        }
+        .breadcrumb-item { cursor: pointer; color: #667eea; }
+        .breadcrumb-item:hover { text-decoration: underline; }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .page-title { font-size: 24px; font-weight: 700; color: #333; }
+        .page-actions { display: flex; gap: 8px; }
+
         .card {
             background: white;
             border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
         }
         .card-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 12px;
+            margin-bottom: 16px;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 12px;
         }
         .card-title { font-size: 16px; font-weight: 700; color: #333; }
-        .card-value {
-            font-size: 24px;
-            font-weight: 700;
-            color: #1565C0;
-        }
 
-        /* شبكة الإحصائيات */
         .stats-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 16px;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
         }
-        .stat-card {
+        .stat-box {
             background: white;
             border-radius: 12px;
-            padding: 16px;
-            text-align: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            border-top: 4px solid #667eea;
         }
-        .stat-card .icon { font-size: 32px; margin-bottom: 8px; }
-        .stat-card .value {
-            font-size: 20px;
-            font-weight: 700;
-        }
-        .stat-card .label { font-size: 12px; color: #888; margin-top: 4px; }
+        .stat-label { font-size: 12px; color: #999; font-weight: 600; text-transform: uppercase; margin-bottom: 8px; }
+        .stat-value { font-size: 28px; font-weight: 700; color: #333; }
+        .stat-change { font-size: 12px; color: #4caf50; margin-top: 8px; }
+        .stat-change.negative { color: #f44336; }
 
-        /* الأزرار */
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th {
+            background: #667eea;
+            color: white;
+            padding: 16px;
+            text-align: right;
+            font-weight: 600;
+            font-size: 13px;
+        }
+        td {
+            padding: 14px 16px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 13px;
+        }
+        tr:hover { background: #f9f9f9; }
+
         .btn {
             display: inline-flex;
             align-items: center;
-            justify-content: center;
-            padding: 12px 24px;
-            border-radius: 8px;
+            gap: 8px;
+            padding: 10px 16px;
             border: none;
+            border-radius: 6px;
             font-family: 'Cairo', sans-serif;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
-            gap: 8px;
         }
-        .btn-primary {
-            background: linear-gradient(135deg, #1565C0 0%, #0D47A1 100%);
-            color: white;
-            box-shadow: 0 4px 12px rgba(21,101,192,0.3);
-        }
-        .btn-success {
-            background: linear-gradient(135deg, #2E7D32 0%, #1B5E20 100%);
-            color: white;
-        }
-        .btn-danger {
-            background: linear-gradient(135deg, #C62828 0%, #B71C1C 100%);
-            color: white;
-        }
-        .btn-warning {
-            background: linear-gradient(135deg, #F57C00 0%, #E65100 100%);
-            color: white;
-        }
-        .btn-info {
-            background: linear-gradient(135deg, #00ACC1 0%, #0097A7 100%);
-            color: white;
-        }
+        .btn-primary { background: #667eea; color: white; }
+        .btn-primary:hover { background: #5568d3; box-shadow: 0 4px 12px rgba(102,126,234,0.3); }
+        .btn-success { background: #4caf50; color: white; }
+        .btn-danger { background: #f44336; color: white; }
+        .btn-warning { background: #ff9800; color: white; }
+        .btn-sm { padding: 6px 12px; font-size: 12px; }
         .btn-block { width: 100%; }
-        .btn-lg { padding: 16px; font-size: 16px; }
-        .btn-sm { padding: 8px 12px; font-size: 12px; }
 
-        /* حقول الإدخال */
-        .input-group {
+        .form-group {
             margin-bottom: 16px;
         }
-        .input-group label {
+        .form-group label {
             display: block;
             font-size: 13px;
             font-weight: 600;
             color: #555;
             margin-bottom: 6px;
         }
-        .input-group input, .input-group select, .input-group textarea {
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
             width: 100%;
-            padding: 12px 16px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
             font-family: 'Cairo', sans-serif;
-            font-size: 14px;
-            transition: border-color 0.2s;
-            background: white;
-        }
-        .input-group input:focus, .input-group select:focus, .input-group textarea:focus {
-            outline: none;
-            border-color: #1565C0;
-        }
-        .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-
-        /* الجداول */
-        .table-container {
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
             font-size: 13px;
+            transition: border-color 0.2s;
         }
-        th {
-            background: #1565C0;
-            color: white;
-            padding: 12px;
-            text-align: right;
-            font-weight: 600;
-            white-space: nowrap;
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
         }
-        td {
-            padding: 12px;
-            border-bottom: 1px solid #f0f0f0;
-        }
-        tr:hover { background: #f8f9fa; }
 
-        /* الشارات */
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+
         .badge {
             display: inline-block;
-            padding: 4px 10px;
+            padding: 4px 12px;
             border-radius: 20px;
             font-size: 11px;
             font-weight: 600;
         }
-        .badge-success { background: #E8F5E9; color: #2E7D32; }
-        .badge-warning { background: #FFF3E0; color: #F57C00; }
-        .badge-danger { background: #FFEBEE; color: #C62828; }
-        .badge-info { background: #E3F2FD; color: #1565C0; }
+        .badge-success { background: #e8f5e9; color: #2e7d32; }
+        .badge-danger { background: #ffebee; color: #c62828; }
+        .badge-warning { background: #fff3e0; color: #f57c00; }
+        .badge-info { background: #e3f2fd; color: #1565c0; }
 
-        /* منتجات POS */
-        .products-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin-bottom: 16px;
-        }
-        .product-card {
-            background: white;
-            border-radius: 12px;
-            padding: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-            position: relative;
-        }
-        .product-card:active { transform: scale(0.98); }
-        .product-card .stock-badge {
-            position: absolute;
-            top: 8px; left: 8px;
-            width: 10px; height: 10px;
-            border-radius: 50%;
-        }
-        .product-card .name {
-            font-size: 13px;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: #333;
-        }
-        .product-card .price {
-            font-size: 18px;
-            font-weight: 700;
-            color: #1565C0;
-        }
-        .product-card .barcode {
-            font-size: 10px;
-            color: #999;
-            margin-top: 4px;
-        }
-
-        /* سلة المشتريات */
-        .cart-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 12px;
-            background: white;
-            border-radius: 8px;
-            margin-bottom: 8px;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-        }
-        .cart-item .info { flex: 1; }
-        .cart-item .name { font-weight: 600; font-size: 14px; }
-        .cart-item .price { font-size: 12px; color: #888; }
-        .cart-item .qty-controls {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .qty-btn {
-            width: 32px; height: 32px;
-            border-radius: 50%;
-            border: none;
-            background: #E3F2FD;
-            color: #1565C0;
-            font-size: 18px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .cart-item .total {
-            font-weight: 700;
-            color: #1565C0;
-            margin-right: 12px;
-            min-width: 60px;
-            text-align: left;
-        }
-
-        /* ملخص الفاتورة */
-        .invoice-summary {
-            background: white;
-            border-radius: 12px;
-            padding: 16px;
-            margin-top: 16px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        }
-        .summary-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid #f0f0f0;
-        }
-        .summary-row:last-child {
-            border-bottom: none;
-            font-size: 18px;
-            font-weight: 700;
-            color: #1565C0;
-        }
-
-        /* تبويبات */
-        .tabs {
-            display: flex;
-            background: white;
-            border-radius: 12px;
-            padding: 4px;
-            margin-bottom: 16px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            overflow-x: auto;
-        }
-        .tab {
-            flex: 1;
-            text-align: center;
-            padding: 10px;
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            color: #888;
-            white-space: nowrap;
-        }
-        .tab.active {
-            background: #1565C0;
-            color: white;
-        }
-
-        /* صفحة تسجيل الدخول */
-        .login-page {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            background: linear-gradient(135deg, #1565C0 0%, #0D47A1 100%);
-            padding: 20px;
-        }
-        .login-card {
-            background: white;
-            border-radius: 20px;
-            padding: 32px 24px;
-            width: 100%;
-            max-width: 360px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-        }
-        .login-logo {
-            text-align: center;
-            margin-bottom: 24px;
-        }
-        .login-logo .icon { font-size: 64px; }
-        .login-logo h2 { color: #1565C0; margin-top: 8px; }
-        .login-logo p { color: #888; font-size: 13px; }
-
-        /* تأثيرات */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .fade-in { animation: fadeIn 0.3s ease; }
-
-        /* شريط البحث */
-        .search-bar {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 16px;
-        }
-        .search-bar input {
-            flex: 1;
-            padding: 12px 16px;
-            border: 2px solid #e0e0e0;
-            border-radius: 12px;
-            font-family: 'Cairo', sans-serif;
-            font-size: 14px;
-        }
-        .search-bar input:focus {
-            outline: none;
-            border-color: #1565C0;
-        }
-
-        /* تصنيفات */
-        .chips {
-            display: flex;
-            gap: 8px;
-            overflow-x: auto;
-            padding-bottom: 8px;
-            margin-bottom: 12px;
-            -webkit-overflow-scrolling: touch;
-        }
-        .chip {
-            padding: 8px 16px;
-            border-radius: 20px;
-            background: white;
-            border: 2px solid #e0e0e0;
-            font-size: 13px;
-            font-weight: 600;
-            white-space: nowrap;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .chip.active {
-            background: #1565C0;
-            border-color: #1565C0;
-            color: white;
-        }
-
-        /* موديل (نافذة منبثقة) */
         .modal {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -463,12 +250,13 @@
         .modal.show { display: flex; }
         .modal-content {
             background: white;
-            border-radius: 16px;
+            border-radius: 12px;
             padding: 24px;
-            max-width: 500px;
+            max-width: 600px;
             width: 100%;
-            max-height: 80vh;
+            max-height: 90vh;
             overflow-y: auto;
+            position: relative;
         }
         .modal-header {
             font-size: 18px;
@@ -477,51 +265,98 @@
             margin-bottom: 16px;
             border-bottom: 2px solid #f0f0f0;
             padding-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         .modal-close {
-            position: absolute;
-            top: 16px; right: 16px;
-            background: none; border: none;
-            font-size: 24px; cursor: pointer;
-            color: #888;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
         }
 
-        /* Toast */
-        .toast {
-            position: fixed;
-            top: 70px;
-            left: 50%;
-            transform: translateX(-50%) translateY(-100px);
-            background: #333;
-            color: white;
+        .tabs {
+            display: flex;
+            gap: 0;
+            border-bottom: 2px solid #f0f0f0;
+            margin-bottom: 16px;
+        }
+        .tab {
             padding: 12px 24px;
-            border-radius: 8px;
-            font-size: 14px;
-            z-index: 10000;
-            transition: transform 0.3s ease;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-family: 'Cairo', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            color: #999;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
         }
-        .toast.show { transform: translateX(-50%) translateY(0); }
-        .toast.success { background: #2E7D32; }
-        .toast.error { background: #C62828; }
-        .toast.warning { background: #F57C00; }
-        .toast.info { background: #1565C0; }
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
 
-        /* تنسيق إضافي */
-        .amount-positive { color: #2E7D32; font-weight: 700; }
-        .amount-negative { color: #C62828; font-weight: 700; }
-        .text-center { text-align: center; }
+        .alert {
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+            font-size: 13px;
+        }
+        .alert-success { background: #e8f5e9; color: #2e7d32; border-left: 4px solid #4caf50; }
+        .alert-danger { background: #ffebee; color: #c62828; border-left: 4px solid #f44336; }
+        .alert-warning { background: #fff3e0; color: #f57c00; border-left: 4px solid #ff9800; }
+        .alert-info { background: #e3f2fd; color: #1565c0; border-left: 4px solid #667eea; }
+
         .text-right { text-align: left; }
-        .mb-16 { margin-bottom: 16px; }
-        .mt-16 { margin-top: 16px; }
+        .text-center { text-align: center; }
+        .text-muted { color: #999; }
+        .font-bold { font-weight: 700; }
+        .mt-20 { margin-top: 20px; }
+        .mb-20 { margin-bottom: 20px; }
+
+        .menu-toggle {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 8px;
+        }
+
+        @media print {
+            .header, .sidebar, .page-actions, .btn { display: none; }
+            .main-content { margin-top: 0; }
+            body { background: white; }
+        }
     </style>
 </head>
 <body>
-    <div id="app"></div>
-    <div class="toast" id="toast"></div>
+    <div class="header">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+            <h1>📊 نظام محاسبة متكامل</h1>
+        </div>
+        <div class="header-actions">
+            <span id="userDisplay" style="font-size: 12px;"></span>
+        </div>
+    </div>
+
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+    <div class="sidebar" id="sidebar">
+        <div class="nav-menu" id="navMenu"></div>
+    </div>
+
+    <div class="main-content">
+        <div class="breadcrumb" id="breadcrumb"></div>
+        <div id="pageContent"></div>
+    </div>
+
     <div class="modal" id="modal">
         <div class="modal-content">
-            <button class="modal-close" onclick="closeModal()">✕</button>
             <div id="modalBody"></div>
         </div>
     </div>
